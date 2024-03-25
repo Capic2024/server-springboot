@@ -7,11 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class VideoService {
-    private final VideoRepository videoRepository;
+//    private final VideoRepository videoRepository;
 
 //    public List<MyPageRes> getMyApplyList(Member member) {
 //        // Validation

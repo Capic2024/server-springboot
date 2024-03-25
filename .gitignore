@@ -35,3 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# End of https://www.toptal.com/developers/gitignore/api/intellij
+
+**/application.yml

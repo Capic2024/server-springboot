@@ -1,11 +1,9 @@
 package com.capic.server.global.util.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.gongjakso.server.global.exception.ApplicationException;
-import com.gongjakso.server.global.exception.ErrorCode;
+import com.amazonaws.services.s3.model.*;
+import com.capic.server.global.exception.ApplicationException;
+import com.capic.server.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -50,6 +48,20 @@ public class S3Client {
         return baseUrl + imageUrl;
     }
 
+    public S3ObjectInputStream get(String imageUrl){
+        // Validation
+        String fileName = imageUrl.substring(baseUrl.length());
+        if(!amazonS3Client.doesObjectExist(bucket, fileName)) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+
+        // Business Logic
+        S3Object s3Object = amazonS3Client.getObject(bucket,fileName);
+        S3ObjectInputStream file = s3Object.getObjectContent();
+
+        return file;
+    }
+
     public void delete(String imageUrl) {
         // Validation
         String fileName = imageUrl.substring(baseUrl.length()); // baseUrl 제거
@@ -64,4 +76,6 @@ public class S3Client {
             throw new ApplicationException(ErrorCode.INTERNAL_SERVER_EXCEPTION);
         }
     }
+
+
 }
