@@ -1,7 +1,7 @@
 package com.capic.server.global.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.gongjakso.server.global.exception.ErrorCode;
+import com.capic.server.global.exception.ErrorCode;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -32,20 +32,4 @@ public record ApplicationResponse<T>(
                 .build();
     }
 
-    public static <T> ApplicationResponse<T> created(T data) {
-        return ApplicationResponse.<T>builder()
-                .timestamp(LocalDateTime.now())
-                .code(ErrorCode.SUCCESS.getCode())
-                .message(ErrorCode.SUCCESS.getMessage())
-                .data(data)
-                .build();
-    }
-
-    public static <T> ApplicationResponse<T> created() {
-        return ApplicationResponse.<T>builder()
-                .timestamp(LocalDateTime.now())
-                .code(ErrorCode.SUCCESS.getCode())
-                .message(ErrorCode.SUCCESS.getMessage())
-                .build();
-    }
 }
