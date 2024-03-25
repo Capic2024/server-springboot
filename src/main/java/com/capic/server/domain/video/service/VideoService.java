@@ -1,8 +1,7 @@
 package com.capic.server.domain.video.service;
 
-import com.capic.server.domain.video.dto.VideoReq;
-import com.capic.server.domain.video.entity.Video;
-import com.capic.server.domain.video.repository.VideoRepository;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.capic.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,30 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class VideoService {
-//    private final VideoRepository videoRepository;
+    private final S3Client s3Client;
+    public S3ObjectInputStream getFile(String imageUrl) {
+        // Validation
 
-//    public List<MyPageRes> getMyApplyList(Member member) {
-//        // Validation
-//
-//        // Business Logic
-//        List<Apply> applyList = applyRepository.findAllByMemberAndDeletedAtIsNull(member);
-//        List<Long> postIdList = applyList.stream()
-//                .map(apply -> apply.getPost().getPostId())
-//                .toList();
-//
-//        List<Post> postList = postRepository.findAllByPostIdInAndStatusAndDeletedAtIsNull(postIdList, RECRUITING);
-//
-//        // Response
-//        return postList.stream()
-//                .map(post -> {
-//                    List<String> categoryList = post.getCategories().stream()
-//                            .map(category -> category.getCategoryType().toString())
-//                            .toList();
-//
-//                    return MyPageRes.of(post, member, categoryList);
-//                })
-//                .collect(Collectors.toList());
-//    }
-
+        // Business Logic
+        S3ObjectInputStream file = s3Client.get(imageUrl);
+        // Response
+        return file;
+    }
 
 }
