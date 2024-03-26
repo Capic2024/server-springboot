@@ -1,12 +1,16 @@
 package com.capic.server.domain.video.controller;
 
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import org.springframework.core.io.Resource;
 import com.capic.server.domain.video.dto.VideoReq;
 import com.capic.server.domain.video.service.VideoService;
 import com.capic.server.global.common.ApplicationResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 
 @RequiredArgsConstructor
@@ -26,5 +30,10 @@ public class VideoController {
     public S3ObjectInputStream addApply(@RequestParam String imageUrl){
         S3ObjectInputStream file = videoService.getFile(imageUrl);
         return file;
+    }
+
+    @PostMapping("/falsk")
+    public ResponseEntity<Resource> sendToFlask(@RequestParam String imageUrl) throws IOException {
+        return videoService.sendToFlask(imageUrl);
     }
 }
