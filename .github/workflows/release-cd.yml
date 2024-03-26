@@ -54,24 +54,18 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME}}/${{ secrets.DOCKERHUB_REPOSITORY}} ./
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
 
-      # Docker Compose
-      - name: Docker Compose
+      # EC2 depoly
+      - name: EC2 depoly
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_SERVER_IP }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker-compose --version
-            docker system prune -a -f
-            sudo docker stop $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
-            sudo docker rm $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
+            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+            chmod +x /usr/local/bin/docker-compose
+            sudo docker-compose stop ${{ secrets.DOCKER_SERVICE_NAME }}
+            sudo docker-compose rm -f ${{ secrets.DOCKER_SERVICE_NAME }}
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
-            sudo docker run -d -p 8080:8080 --name ${{ secrets.DOCKERHUB_REPOSITORY }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
-#            cd server-springboot/
-#            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-#            sudo docker-compose stop ${{ secrets.DOCKER_SERVICE_NAME }}
-#            sudo docker-compose rm -f ${{ secrets.DOCKER_SERVICE_NAME }}
-#            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
-#            sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}} ${{ secrets.DOCKER_IMAGE_NAME }}
-#            sudo docker-compose up -d
+            sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}} ${{ secrets.DOCKER_IMAGE_NAME }}
+            sudo docker-compose up -d
