@@ -35,13 +35,18 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # application.yml 파일 생성
-      - name: make application.yml
-        if: |
-          contains(github.ref, 'main')
+      #워크 플로우에 파일을 생성
+      - name: Make application.properties
         run: |
-          mkdir -p ./config  # config 폴더 생성
-          echo "${{ secrets.YML }}" > ./config/application.yml  # GitHub Secrets에서 설정한 값을 application.yml 파일에 쓰기
+          cd ./src/main/resources
+          touch ./application.properties
+          echo "${{ secrets.YML }}" > ./application.properties
+        shell: bash
+
+      - name: Build with Gradle
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test
 
       # Gradle BootJar
       - name: BootJar with Gradle
@@ -62,11 +67,10 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker system prune -a -f
-            sudo docker stop $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
-            sudo docker rm $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
-            sudo docker pull ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
-            sudo docker run -d -p 8080:8080 --name ${{ secrets.DOCKERHUB_REPOSITORY }} ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
+            docker-compose up -d
+            docker image prune -f
 #            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
 #            chmod +x /usr/local/bin/docker-compose
 #            sudo docker-compose stop ${{ secrets.DOCKER_SERVICE_NAME }}

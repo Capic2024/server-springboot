@@ -3,6 +3,8 @@ services:
   webapp:
     container_name: capic-springboot
     image: sycuuui/capic-springboot:latest
+    expose:
+      - 8080
     ports:
       - "8080:8080"
 
