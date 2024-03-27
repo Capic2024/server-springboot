@@ -38,7 +38,7 @@ jobs:
       #워크 플로우에 파일을 생성
       - name: Make application.properties
         run: |
-          cd ./src/main/resources
+          cd server-springboot/src/main/resources
           touch ./application.properties
           echo "${{ secrets.YML }}" > ./application.properties
         shell: bash
