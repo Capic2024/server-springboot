@@ -33,16 +33,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # Gradle 권한 부여
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
       #워크 플로우에 파일을 생성
       - name: Make application.properties
         run: |
           cd ./src/main/resources
-          touch ./application.properties
-          echo "${{ secrets.YML }}" > ./application.properties
+          touch ./application.yml
+          echo "${{ secrets.YML }}" > ./application.yml
         shell: bash
 
       - name: Build with Gradle
@@ -70,11 +66,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             sudo docker ps
+            sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
             sudo docker run -d -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
             docker system prune -f
 
-#            sudo docker rm -f $(docker ps -qa)
+
 #            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
 #            docker-compose up -d
 #            docker image prune -f
