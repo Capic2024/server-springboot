@@ -9,6 +9,8 @@ jobs:
   build:
     # ubuntu 버전 지정
     runs-on: ubuntu-22.04
+    env:
+      working-directory: ./server-springboot
     steps:
       # Checkout 진행
       - uses: actions/checkout@v3
