@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.capic.server.global.util.s3.S3Client;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -24,6 +25,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class VideoService {
     private final S3Client s3Client;
+
+    @Value("${cloud.flask.url}")
+    private String flaskUrl;
     public S3ObjectInputStream getFile(String imageUrl) {
         // Validation
 
@@ -50,7 +54,8 @@ public class VideoService {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://13.124.110.226:5000/video";
+        String url = flaskUrl+"/video";
+//        String url = "http://localhost:5000/video";
 
         ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
 
