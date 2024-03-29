@@ -59,7 +59,7 @@ jobs:
 
       # EC2 depoly
       - name: EC2 depoly
-        uses: actions/ssh-action@master
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_SERVER_IP }}
           username: ${{ secrets.SSH_USERNAME }}
