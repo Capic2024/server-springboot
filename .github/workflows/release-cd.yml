@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    # ubuntu 버전
+    # ubuntu 버전 지정
     runs-on: ubuntu-22.04
     env:
       working-directory: ./server-springboot
@@ -50,7 +50,7 @@ jobs:
       - name: BootJar with Gradle
         run: ./gradlew clean bootJar -Dspring.profiles.active=release
 
-      # Docker Image Build & Push
+      # Docker Image Push
       - name: Docker Image push
         run: |
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
