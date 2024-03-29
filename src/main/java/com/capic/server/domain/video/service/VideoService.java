@@ -54,7 +54,8 @@ public class VideoService {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         RestTemplate restTemplate = new RestTemplate();
-        String url = flaskUrl+"/video";
+//        String url = flaskUrl+"/video";
+        String url = "http://13.124.110.226:5000/video";
 //        String url = "http://localhost:5000/video";
 
         ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
