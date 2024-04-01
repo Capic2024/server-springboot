@@ -51,7 +51,7 @@ public class VideoService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        String url = "http://localhost:5000/video";
+        String url = "http://127.0.0.1:5000/video";
 
         ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
 
