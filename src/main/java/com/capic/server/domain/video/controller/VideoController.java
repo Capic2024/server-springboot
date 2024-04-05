@@ -1,6 +1,7 @@
 package com.capic.server.domain.video.controller;
 
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.capic.server.domain.video.dto.VideoRes;
 import org.springframework.core.io.Resource;
 import com.capic.server.domain.video.dto.VideoReq;
 import com.capic.server.domain.video.service.VideoService;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -36,4 +38,15 @@ public class VideoController {
     public ResponseEntity<Resource> sendToFlask(@RequestParam String imageUrl) throws IOException {
         return videoService.sendToFlask(imageUrl);
     }
+
+    @PostMapping("/falsk-with-images")
+    public ResponseEntity<Resource> sendToFlaskWithImages(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
+        return videoService.sendToFlaskWithImages(folderName,videoReq);
+    }
+
+    @GetMapping("/s3-folder")
+    public ApplicationResponse<VideoRes> sendToFlaskWithImages() {
+        return  ApplicationResponse.ok(videoService.createFolder());
+    }
+
 }

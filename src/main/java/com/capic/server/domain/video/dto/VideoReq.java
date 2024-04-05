@@ -1,13 +1,9 @@
 package com.capic.server.domain.video.dto;
 
-import com.capic.server.domain.video.entity.Video;
+import java.util.List;
 
 public record VideoReq(
-        Long url
+        String videoName, List<String> images
 ) {
-    public Video toEntity(String url){
-        return Video.builder()
-                .url(url)
-                .build();
-    }
+
 }
