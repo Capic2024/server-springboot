@@ -77,12 +77,11 @@ public class VideoService {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
-    //flask에 동영상 전송, 이미지들을 배열로 받아 s3에 업로드
-    public ResponseEntity<Resource> sendToFlaskWithVideo(String folderName,String VideoName) throws IOException{
+    public ResponseEntity<Resource> sendToFlaskWithVideo(String folderName, String VideoName) throws IOException {
         S3ObjectInputStream file = s3Client.get(folderName + "/" + VideoName);
         byte[] content = IOUtils.toByteArray(file);
 
-        MultiValueMap<String,Object> body = new LinkedMultiValueMap<>();
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new ByteArrayResource(content) {
             @Override
             public String getFilename() {
@@ -101,28 +100,28 @@ public class VideoService {
 
         ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
 
+        // Flask에서 반환된 이미지 배열을 받아옴
+        byte[] imageDataArray = response.getBody();
+
         // Flask에서 반환된 파일을 다시 클라이언트에게 반환
-        ByteArrayResource resource = new ByteArrayResource(response.getBody());
-        //Flask에서 받은 이미지들 s3에 업로드
+        ByteArrayResource resource = new ByteArrayResource(imageDataArray);
+
+        // Flask에서 받은 이미지들을 S3에 업로드
         ObjectMapper objectMapper = new ObjectMapper();
-        List<String> imageList = objectMapper.readValue(response.getBody(), new TypeReference<List<String>>() {});
+        List<byte[]> imageList = objectMapper.readValue(imageDataArray, new TypeReference<List<byte[]>>() {});
 
         for (int i = 0; i < imageList.size(); i++) {
-            String imageUrl = imageList.get(i);
-
-            URL imageURL = new URL(imageUrl);
-            String imageName = i + 1 + "_" + imageURL.getPath().substring(imageURL.getPath().lastIndexOf("/") + 1);
-
-            // 이미지 다운로드
-            InputStream imageStream = imageURL.openStream();
-            byte[] imageData = IOUtils.toByteArray(imageStream);
+            byte[] imageData = imageList.get(i);
 
             // 이미지를 S3에 업로드
+            String imageName = i + 1 + "_" + "image.jpg"; // 이미지 이름 설정 (예시로 "image.jpg"를 사용하였습니다)
+            String s3ImagePath = folderName + "/" + imageName; // S3에 업로드할 경로 설정
+
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(imageData.length);
             metadata.setContentType("image/jpeg"); // 이미지 타입에 따라 변경
 
-            String s3ImagePath = folderName + "/" + imageName;
+            // 이미지를 S3에 업로드
             s3Client.upload(s3ImagePath, (MultipartFile) new ByteArrayInputStream(imageData), metadata);
         }
 
@@ -130,6 +129,7 @@ public class VideoService {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
 
     //flask에 이미지, 동영상 보내기
     public ResponseEntity<Resource> sendToFlaskWithImagesAndVideo(String folderName, VideoReq videoReq) throws IOException{
