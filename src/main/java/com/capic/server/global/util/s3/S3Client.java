@@ -24,19 +24,11 @@ public class S3Client {
     @Value("${cloud.aws.baseUrl}")
     private String baseUrl;
 
-    public String upload(MultipartFile multipartFile, String dirName) {
+    public void upload(String imageUrl,MultipartFile multipartFile, ObjectMetadata objectMetadata) {
         // Validation
         if(multipartFile.isEmpty()) {
             throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
         }
-
-        // Business Logic
-        String uuid = UUID.randomUUID().toString();
-        String imageUrl = dirName + "/" + uuid + "_" + multipartFile.getOriginalFilename();
-
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(multipartFile.getContentType());
-        objectMetadata.setContentLength(multipartFile.getSize());
 
         // Check File upload
         try {
@@ -46,8 +38,6 @@ public class S3Client {
             throw new RuntimeException(e);
         }
 
-        // Response
-        return baseUrl + imageUrl;
     }
 
     public String update(String existingImageUrl, MultipartFile newFile) {

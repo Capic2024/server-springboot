@@ -39,14 +39,19 @@ public class VideoController {
         return videoService.sendToFlask(imageUrl);
     }
 
-    @PostMapping("/falsk-with-images")
-    public ResponseEntity<Resource> sendToFlaskWithImages(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
-        return videoService.sendToFlaskWithImages(folderName,videoReq);
-    }
-
-    @GetMapping("/s3-folder")
+    @GetMapping("/folder")
     public ApplicationResponse<VideoRes> sendToFlaskWithImages() {
         return  ApplicationResponse.ok(videoService.createFolder());
+    }
+
+    @PostMapping("/falsk-target")
+    public ResponseEntity<Resource> sendToFlaskWithImages(@RequestParam String folderName, String videoName) throws IOException {
+        return videoService.sendToFlaskWithVideo(folderName,videoName);
+    }
+
+    @PostMapping("/falsk-mosaic")
+    public ResponseEntity<Resource> sendToFlaskWithImagesAndVideo(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
+        return videoService.sendToFlaskWithImagesAndVideo(folderName,videoReq);
     }
 
 }

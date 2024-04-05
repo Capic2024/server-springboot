@@ -1,10 +1,12 @@
 package com.capic.server.domain.video.service;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.capic.server.domain.video.dto.VideoReq;
 import com.capic.server.domain.video.dto.VideoRes;
 import com.capic.server.global.util.s3.S3Client;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -17,8 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,13 +42,12 @@ public class VideoService {
     }
 
     public S3ObjectInputStream getFile(String imageUrl) {
-        // Validation
-
         // Business Logic
         S3ObjectInputStream file = s3Client.get(imageUrl);
         // Response
         return file;
     }
+
     public ResponseEntity<Resource> sendToFlask(String imageUrl) throws IOException {
         S3ObjectInputStream file = s3Client.get(imageUrl);
         byte[] content = IOUtils.toByteArray(file);
@@ -71,7 +77,62 @@ public class VideoService {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
-    public ResponseEntity<Resource> sendToFlaskWithImages(String folderName, VideoReq videoReq) throws IOException{
+    //flask에 동영상 전송, 이미지들을 배열로 받아 s3에 업로드
+    public ResponseEntity<Resource> sendToFlaskWithVideo(String folderName,String VideoName) throws IOException{
+        S3ObjectInputStream file = s3Client.get(folderName + "/" + VideoName);
+        byte[] content = IOUtils.toByteArray(file);
+
+        MultiValueMap<String,Object> body = new LinkedMultiValueMap<>();
+        body.add("file", new ByteArrayResource(content) {
+            @Override
+            public String getFilename() {
+                return VideoName; // 파일 이름 지정
+            }
+        });
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = "http://127.0.0.1:5000/video";
+
+        ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
+
+        // Flask에서 반환된 파일을 다시 클라이언트에게 반환
+        ByteArrayResource resource = new ByteArrayResource(response.getBody());
+        //Flask에서 받은 이미지들 s3에 업로드
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<String> imageList = objectMapper.readValue(response.getBody(), new TypeReference<List<String>>() {});
+
+        for (int i = 0; i < imageList.size(); i++) {
+            String imageUrl = imageList.get(i);
+
+            URL imageURL = new URL(imageUrl);
+            String imageName = i + 1 + "_" + imageURL.getPath().substring(imageURL.getPath().lastIndexOf("/") + 1);
+
+            // 이미지 다운로드
+            InputStream imageStream = imageURL.openStream();
+            byte[] imageData = IOUtils.toByteArray(imageStream);
+
+            // 이미지를 S3에 업로드
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(imageData.length);
+            metadata.setContentType("image/jpeg"); // 이미지 타입에 따라 변경
+
+            String s3ImagePath = folderName + "/" + imageName;
+            s3Client.upload(s3ImagePath, (MultipartFile) new ByteArrayInputStream(imageData), metadata);
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
+    //flask에 이미지, 동영상 보내기
+    public ResponseEntity<Resource> sendToFlaskWithImagesAndVideo(String folderName, VideoReq videoReq) throws IOException{
         // 동영상 파일 가져오기
         S3ObjectInputStream videoFile = s3Client.get(folderName + "/" + videoReq.videoName());
         byte[] videoContent = IOUtils.toByteArray(videoFile);
@@ -118,6 +179,8 @@ public class VideoService {
 
         // Flask에서 반환된 파일을 다시 클라이언트에게 반환
         ByteArrayResource resource = new ByteArrayResource(response.getBody());
+
+        //여기에 나중에 update 구현
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
