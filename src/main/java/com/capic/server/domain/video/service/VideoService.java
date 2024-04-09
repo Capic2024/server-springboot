@@ -139,7 +139,7 @@ public class VideoService {
 
         // 이미지 파일들을 바이트 배열로 변환하여 리스트에 추가
         List<byte[]> imageContents = new ArrayList<>();
-        for (String imageName : videoReq.images()) {
+        for (String imageName : videoReq.imageName()) {
             // 이미지 파일 가져오기
             S3ObjectInputStream imageFile = s3Client.get(folderName + "/" + imageName);
             byte[] imageContent = IOUtils.toByteArray(imageFile);
@@ -158,7 +158,7 @@ public class VideoService {
         // 이미지 파일들을 요청에 추가
         for (int i = 0; i < imageContents.size(); i++) {
             byte[] content = imageContents.get(i);
-            final String imageName = videoReq.images().get(i);
+            final String imageName = videoReq.imageName().get(i);
             body.add("image" + (i + 1), new ByteArrayResource(content) {
                 @Override
                 public String getFilename() {
@@ -181,6 +181,7 @@ public class VideoService {
         ByteArrayResource resource = new ByteArrayResource(response.getBody());
 
         //여기에 나중에 update 구현
+//        s3Client.update(folderName + "/" + videoReq.videoName(),)
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
