@@ -167,6 +167,8 @@ public class VideoService {
             });
         }
 
+        body.add("imageSize",imageContents.size());
+
         // HTTP 요청 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
