@@ -36,10 +36,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VideoService {
     private final S3Client s3Client;
-    public VideoRes createFolder(){
-        String folderName = UUID.randomUUID().toString();
-        return VideoRes.of(folderName);
-    }
+//    public VideoRes createFolder(){
+//        String folderName = UUID.randomUUID().toString();
+//        return VideoRes.of(folderName);
+//    }
 
     public S3ObjectInputStream getFile(String imageUrl) {
         // Business Logic
@@ -132,7 +132,7 @@ public class VideoService {
 
 
     //flask에 이미지, 동영상 보내기
-    public ResponseEntity<Resource> sendToFlaskWithImagesAndVideo(String folderName, VideoReq videoReq) throws IOException{
+    public VideoRes sendToFlaskWithImagesAndVideo(String folderName, VideoReq videoReq) throws IOException{
         // 동영상 파일 가져오기
         S3ObjectInputStream videoFile = s3Client.get(folderName + "/" + videoReq.videoName());
         byte[] videoContent = IOUtils.toByteArray(videoFile);
@@ -183,7 +183,61 @@ public class VideoService {
         ByteArrayResource resource = new ByteArrayResource(response.getBody());
 
         //여기에 나중에 update 구현
-//        s3Client.update(folderName + "/" + videoReq.videoName(),)
+        s3Client.update(folderName + "/" + videoReq.videoName(), (MultipartFile) resource);
+        return VideoRes.of(folderName, videoReq.videoName(), null);
+    }
+
+    //flask에 이미지, 동영상 보내기
+    public ResponseEntity<Resource> sendToFlaskWithImagesAndVideoTest(String folderName, VideoReq videoReq) throws IOException{
+        // 동영상 파일 가져오기
+        S3ObjectInputStream videoFile = s3Client.get(folderName + "/" + videoReq.videoName());
+        byte[] videoContent = IOUtils.toByteArray(videoFile);
+
+        // 이미지 파일들을 바이트 배열로 변환하여 리스트에 추가
+        List<byte[]> imageContents = new ArrayList<>();
+        for (String imageName : videoReq.imageName()) {
+            // 이미지 파일 가져오기
+            S3ObjectInputStream imageFile = s3Client.get(folderName + "/" + imageName);
+            byte[] imageContent = IOUtils.toByteArray(imageFile);
+            imageContents.add(imageContent);
+        }
+
+        // Multipart 요청 생성
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("video", new ByteArrayResource(videoContent) {
+            @Override
+            public String getFilename() {
+                return videoReq.videoName(); // 동영상 파일 이름 가져오기
+            }
+        });
+
+        // 이미지 파일들을 요청에 추가
+        for (int i = 0; i < imageContents.size(); i++) {
+            byte[] content = imageContents.get(i);
+            final String imageName = videoReq.imageName().get(i);
+            body.add("image" + (i + 1), new ByteArrayResource(content) {
+                @Override
+                public String getFilename() {
+                    return imageName; // 이미지 파일 이름 가져오기
+                }
+            });
+        }
+
+        body.add("imageSize",imageContents.size());
+
+        // HTTP 요청 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // Flask 서버로 요청 보내기
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://127.0.0.1:5000/video"; // Flask 서버 URL
+        ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
+
+        // Flask에서 반환된 파일을 다시 클라이언트에게 반환
+        ByteArrayResource resource = new ByteArrayResource(response.getBody());
+
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);

@@ -39,10 +39,10 @@ public class VideoController {
         return videoService.sendToFlask(imageUrl);
     }
 
-    @GetMapping("/folder")
-    public ApplicationResponse<VideoRes> sendToFlaskWithImages() {
-        return  ApplicationResponse.ok(videoService.createFolder());
-    }
+//    @GetMapping("/folder")
+//    public ApplicationResponse<VideoRes> sendToFlaskWithImages() {
+//        return  ApplicationResponse.ok(videoService.createFolder());
+//    }
 
     @PostMapping("/falsk-target")
     public ResponseEntity<Resource> sendToFlaskWithImages(@RequestParam String folderName, String videoName) throws IOException {
@@ -50,8 +50,12 @@ public class VideoController {
     }
 
     @PostMapping("/falsk-mosaic")
-    public ResponseEntity<Resource> sendToFlaskWithImagesAndVideo(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
-        return videoService.sendToFlaskWithImagesAndVideo(folderName,videoReq);
+    public ApplicationResponse<VideoRes> sendToFlaskWithImagesAndVideo(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
+        return ApplicationResponse.ok(videoService.sendToFlaskWithImagesAndVideo(folderName,videoReq));
+    }
+    @PostMapping("/test-falsk-mosaic")
+    public ResponseEntity<Resource> sendToFlaskWithImagesAndVideoTest(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
+        return videoService.sendToFlaskWithImagesAndVideoTest(folderName,videoReq);
     }
 
 }

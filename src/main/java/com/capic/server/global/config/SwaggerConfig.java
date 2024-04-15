@@ -13,8 +13,8 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        Info info = new Info().title("Gongjakso Server Swagger UI")
-                .description("공작소 서버 API 테스트 페이지입니다.")
+        Info info = new Info().title("Capic Swagger UI")
+                .description("Capic API 테스트 페이지.")
                 .version("v0.0.1");
 
         String jwtSchemeName = "JWT Authentication";
