@@ -34,7 +34,7 @@ public class VideoController {
         return file;
     }
 
-    @PostMapping("/falsk")
+    @PostMapping("/flask")
     public ResponseEntity<Resource> sendToFlask(@RequestParam String imageUrl) throws IOException {
         return videoService.sendToFlask(imageUrl);
     }
@@ -44,16 +44,16 @@ public class VideoController {
 //        return  ApplicationResponse.ok(videoService.createFolder());
 //    }
 
-    @PostMapping("/falsk-target")
+    @PostMapping("/flask-target")
     public ResponseEntity<Resource> sendToFlaskWithImages(@RequestParam String folderName, String videoName) throws IOException {
         return videoService.sendToFlaskWithVideo(folderName,videoName);
     }
 
-    @PostMapping("/falsk-mosaic")
+    @PostMapping("/flask-mosaic")
     public ApplicationResponse<VideoRes> sendToFlaskWithImagesAndVideo(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
         return ApplicationResponse.ok(videoService.sendToFlaskWithImagesAndVideo(folderName,videoReq));
     }
-    @PostMapping("/test-falsk-mosaic")
+    @PostMapping("/test-flask-mosaic")
     public ResponseEntity<Resource> sendToFlaskWithImagesAndVideoTest(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
         return videoService.sendToFlaskWithImagesAndVideoTest(folderName,videoReq);
     }
