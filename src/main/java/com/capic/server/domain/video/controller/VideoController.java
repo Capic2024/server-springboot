@@ -28,7 +28,7 @@ public class VideoController {
         return ApplicationResponse.ok();
     }
 
-    @PostMapping("/httptest")
+    @GetMapping("/httptest")
     public String test(){
 //        videoService.testService(req);
         return "good";
