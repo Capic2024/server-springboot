@@ -232,7 +232,7 @@ public class VideoService {
 
         // Flask 서버로 요청 보내기
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://127.0.0.0:5000/image"; // Flask 서버 URL
+        String url = "http://127.0.0.1:5000/image"; // Flask 서버 URL
         ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
 
         // Flask에서 반환된 파일을 다시 클라이언트에게 반환
