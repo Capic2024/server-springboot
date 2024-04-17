@@ -28,6 +28,12 @@ public class VideoController {
         return ApplicationResponse.ok();
     }
 
+    @PostMapping("/httptest")
+    public String test(){
+//        videoService.testService(req);
+        return "good";
+    }
+
     @PostMapping("/image-test")
     public S3ObjectInputStream addApply(@RequestParam String imageUrl){
         S3ObjectInputStream file = videoService.getFile(imageUrl);
@@ -56,6 +62,11 @@ public class VideoController {
     @PostMapping("/test-flask-mosaic")
     public ResponseEntity<Resource> sendToFlaskWithImagesAndVideoTest(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
         return videoService.sendToFlaskWithImagesAndVideoTest(folderName,videoReq);
+    }
+    @PostMapping("/delete")
+    public ApplicationResponse<Void> delete(@RequestParam String deleteFile) throws IOException {
+        videoService.delete(deleteFile);
+        return ApplicationResponse.ok();
     }
 
 }

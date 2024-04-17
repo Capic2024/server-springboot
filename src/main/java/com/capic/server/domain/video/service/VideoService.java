@@ -242,4 +242,8 @@ public class VideoService {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
+    public void delete(String deleteFile) {
+        s3Client.delete(deleteFile);
+    }
 }

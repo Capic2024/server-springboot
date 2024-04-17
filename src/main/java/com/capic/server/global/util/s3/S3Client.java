@@ -102,14 +102,14 @@ public class S3Client {
 
     public void delete(String imageUrl) {
         // Validation
-        String fileName = imageUrl.substring(baseUrl.length()); // baseUrl 제거
-        if(!amazonS3Client.doesObjectExist(bucket, fileName)) {
+//        String fileName = imageUrl.substring(baseUrl.length()); // baseUrl 제거
+        if(!amazonS3Client.doesObjectExist(bucket, imageUrl)) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
 
         // Business Logic
         try {
-            amazonS3Client.deleteObject(bucket, fileName);
+            amazonS3Client.deleteObject(bucket, imageUrl);
         } catch (Exception e) {
             throw new ApplicationException(ErrorCode.INTERNAL_SERVER_EXCEPTION);
         }
