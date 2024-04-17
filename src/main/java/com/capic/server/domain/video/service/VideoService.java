@@ -8,6 +8,7 @@ import com.capic.server.domain.video.dto.VideoRes;
 import com.capic.server.global.util.s3.S3Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -24,17 +25,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class VideoService {
+    @Value("${cloud.flask.url}")
+    private String baseUrl;
+
     private final S3Client s3Client;
 //    public VideoRes createFolder(){
 //        String folderName = UUID.randomUUID().toString();
@@ -176,7 +177,7 @@ public class VideoService {
 
         // Flask 서버로 요청 보내기
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://127.0.0.1:5000/video"; // Flask 서버 URL
+        String url = baseUrl+"/video"; // Flask 서버 URL
         ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
 
         // Flask에서 반환된 파일을 다시 클라이언트에게 반환
@@ -232,7 +233,7 @@ public class VideoService {
 
         // Flask 서버로 요청 보내기
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://172.30.1.77:5000/image"; // Flask 서버 URL
+        String url = baseUrl+"/video"; // Flask 서버 URL
         ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
 
         // Flask에서 반환된 파일을 다시 클라이언트에게 반환
