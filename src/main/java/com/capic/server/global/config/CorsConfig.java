@@ -31,7 +31,11 @@ public class CorsConfig {
         // CORS 허용, CSRF 비활성화
         http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
+        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        http.authorizeHttpRequests((authorize) ->
+                authorize.requestMatchers( "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .anyRequest().permitAll());
         return http.build();
     }
     /**
