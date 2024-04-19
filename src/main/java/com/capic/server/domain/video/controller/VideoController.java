@@ -1,7 +1,6 @@
 package com.capic.server.domain.video.controller;
 
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.capic.server.domain.video.dto.VideoRes;
 import org.springframework.core.io.Resource;
 import com.capic.server.domain.video.dto.VideoReq;
 import com.capic.server.domain.video.service.VideoService;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public class VideoController {
         return ApplicationResponse.ok();
     }
 
-    @GetMapping("/httptest")
+    @GetMapping("/httptestx")
     public String test(){
 //        videoService.testService(req);
         return "good";
@@ -56,8 +54,8 @@ public class VideoController {
     }
 
     @PostMapping("/flask-mosaic")
-    public ApplicationResponse<VideoRes> sendToFlaskWithImagesAndVideo(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {
-        return ApplicationResponse.ok(videoService.sendToFlaskWithImagesAndVideo(folderName,videoReq));
+    public ApplicationResponse<String> sendToFlaskWithImagesAndVideo(@RequestParam String folderName, @RequestBody VideoReq videoReq) throws IOException {
+        return  ApplicationResponse.ok(videoService.sendToFlaskWithImagesAndVideo(folderName,videoReq));
     }
     @PostMapping("/test-flask-mosaic")
     public ResponseEntity<Resource> sendToFlaskWithImagesAndVideoTest(@RequestParam String folderName,@RequestBody VideoReq videoReq) throws IOException {

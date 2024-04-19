@@ -131,7 +131,7 @@ public class VideoService {
 
 
     //flask에 이미지, 동영상 보내기
-    public VideoRes sendToFlaskWithImagesAndVideo(String folderName, VideoReq videoReq) throws IOException{
+    public String sendToFlaskWithImagesAndVideo(String folderName, VideoReq videoReq) throws IOException{
         // 동영상 파일 가져오기
         S3ObjectInputStream videoFile = s3Client.get(folderName + "/" + videoReq.videoName());
         byte[] videoContent = IOUtils.toByteArray(videoFile);
@@ -144,46 +144,46 @@ public class VideoService {
             byte[] imageContent = IOUtils.toByteArray(imageFile);
             imageContents.add(imageContent);
         }
-
+        return videoReq.videoName();
         // Multipart 요청 생성
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("video", new ByteArrayResource(videoContent) {
-            @Override
-            public String getFilename() {
-                return videoReq.videoName(); // 동영상 파일 이름 가져오기
-            }
-        });
-
-        // 이미지 파일들을 요청에 추가
-        for (int i = 0; i < imageContents.size(); i++) {
-            byte[] content = imageContents.get(i);
-            final String imageName = videoReq.imageName().get(i);
-            body.add("image" + (i + 1), new ByteArrayResource(content) {
-                @Override
-                public String getFilename() {
-                    return imageName; // 이미지 파일 이름 가져오기
-                }
-            });
-        }
-
-        body.add("imageSize",imageContents.size());
-
-        // HTTP 요청 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-        // Flask 서버로 요청 보내기
-        RestTemplate restTemplate = new RestTemplate();
-        String url =  "http://13.124.110.226:5000/video"; // Flask 서버 URL
-        ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
-
-        // Flask에서 반환된 파일을 다시 클라이언트에게 반환
-        ByteArrayResource resource = new ByteArrayResource(response.getBody());
-
-        //여기에 나중에 update 구현
-        s3Client.update(folderName + "/" + videoReq.videoName(), (MultipartFile) resource);
-        return VideoRes.of(folderName, videoReq.videoName(), null);
+//        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//        body.add("video", new ByteArrayResource(videoContent) {
+//            @Override
+//            public String getFilename() {
+//                return videoReq.videoName(); // 동영상 파일 이름 가져오기
+//            }
+//        });
+//
+//        // 이미지 파일들을 요청에 추가
+//        for (int i = 0; i < imageContents.size(); i++) {
+//            byte[] content = imageContents.get(i);
+//            final String imageName = videoReq.imageName().get(i);
+//            body.add("image" + (i + 1), new ByteArrayResource(content) {
+//                @Override
+//                public String getFilename() {
+//                    return imageName; // 이미지 파일 이름 가져오기
+//                }
+//            });
+//        }
+//
+//        body.add("imageSize",imageContents.size());
+//
+//        // HTTP 요청 설정
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+//        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+//
+//        // Flask 서버로 요청 보내기
+//        RestTemplate restTemplate = new RestTemplate();
+//        String url =  "http://13.124.110.226:5000/video"; // Flask 서버 URL
+//        ResponseEntity<byte[]> response = restTemplate.postForEntity(url, requestEntity, byte[].class);
+//
+//        // Flask에서 반환된 파일을 다시 클라이언트에게 반환
+//        ByteArrayResource resource = new ByteArrayResource(response.getBody());
+//
+//        //여기에 나중에 update 구현
+//        s3Client.update(folderName + "/" + videoReq.videoName(), (MultipartFile) resource);
+//        return VideoRes.of(folderName, videoReq.videoName(), null);
     }
 
     //flask에 이미지, 동영상 보내기
