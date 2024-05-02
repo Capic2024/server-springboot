@@ -153,24 +153,31 @@ public class VideoService {
         List<byte[]> imageContents = new ArrayList<>();
         for (String imageName : videoReq.imageName()) {
             // 이미지 파일 가져오기
-            S3ObjectInputStream imageFile = s3Client.get(folderName + "/" + imageName);
-            byte[] imageContent = IOUtils.toByteArray(imageFile);
-            imageContents.add(imageContent);
+            for(int i=0;i<3;i++){
+                String imagePath = folderName + "/" + imageName+"/"+(i+1)+".jpeg";
+                System.out.println(imagePath);
+                S3ObjectInputStream imageFile = s3Client.get(imagePath);
+                byte[] imageContent = IOUtils.toByteArray(imageFile);
+                imageContents.add(imageContent);
+            }
+            System.out.println("finish");
         }
+        System.out.println("check");
 //        return videoReq.videoName();
         // Multipart 요청 생성
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        System.out.println("check2");
         body.add("video", new ByteArrayResource(videoContent) {
             @Override
             public String getFilename() {
                 return videoReq.videoName(); // 동영상 파일 이름 가져오기
             }
         });
-
+        System.out.println("check3");
         // 이미지 파일들을 요청에 추가
         for (int i = 0; i < imageContents.size(); i++) {
             byte[] content = imageContents.get(i);
-            final String imageName = videoReq.imageName().get(i);
+            final String imageName = i +".jpeg";
             body.add("image" + (i + 1), new ByteArrayResource(content) {
                 @Override
                 public String getFilename() {
@@ -178,9 +185,10 @@ public class VideoService {
                 }
             });
         }
+        System.out.println("check4");
 
         body.add("imageSize",imageContents.size());
-
+        System.out.println("check5");
         // HTTP 요청 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
