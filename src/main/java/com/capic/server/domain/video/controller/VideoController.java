@@ -1,6 +1,8 @@
 package com.capic.server.domain.video.controller;
 
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.capic.server.domain.video.dto.TargetRes;
+import com.capic.server.domain.video.dto.VideoRes;
 import org.springframework.core.io.Resource;
 import com.capic.server.domain.video.dto.VideoReq;
 import com.capic.server.domain.video.service.VideoService;
@@ -49,12 +51,12 @@ public class VideoController {
 //    }
 
     @PostMapping("/flask-target")
-    public ResponseEntity<Resource> sendToFlaskWithImages(@RequestParam String folderName, String videoName) throws IOException {
-        return videoService.sendToFlaskWithVideo(folderName,videoName);
+    public ApplicationResponse<TargetRes> sendToFlaskWithImages(@RequestParam String folderName, String videoName) throws IOException {
+        return ApplicationResponse.ok(videoService.sendToFlaskWithVideo(folderName,videoName));
     }
 
     @PostMapping("/flask-mosaic")
-    public ApplicationResponse<String> sendToFlaskWithImagesAndVideo(@RequestParam String folderName, @RequestBody VideoReq videoReq) throws IOException {
+    public ApplicationResponse<VideoRes> sendToFlaskWithImagesAndVideo(@RequestParam String folderName, @RequestBody VideoReq videoReq) throws IOException {
         return  ApplicationResponse.ok(videoService.sendToFlaskWithImagesAndVideo(folderName,videoReq));
     }
     @PostMapping("/test-flask-mosaic")
