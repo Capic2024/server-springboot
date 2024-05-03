@@ -202,7 +202,12 @@ public class VideoService {
         // Flask에서 반환된 파일을 다시 클라이언트에게 반환
         ByteArrayResource resource = new ByteArrayResource(response.getBody());
 
-        ByteArrayMultipartFile multipartFile = new ByteArrayMultipartFile(resource.getByteArray(), videoReq.videoName());
+        ByteArrayMultipartFile multipartFile = new ByteArrayMultipartFile(resource.getByteArray(), videoReq.videoName()) {
+            @Override
+            public String getContentType() {
+                return "video/mp4"; // 동영상의 MIME 타입을 video/mp4로 설정
+            }
+        };
 
         // S3에 파일 업데이트
         s3Client.update(folderName + "/" + videoReq.videoName(), multipartFile);

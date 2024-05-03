@@ -40,22 +40,17 @@ public class S3Client {
 
     }
 
-    public String update(String existingImageUrl, MultipartFile newFile) {
+    public String update(String fileName, MultipartFile newFile) {
         // Validation
         if(newFile.isEmpty()) {
             throw new ApplicationException(ErrorCode.INVALID_VALUE_EXCEPTION);
         }
 
         // Business Logic
-        String fileName = existingImageUrl.substring(baseUrl.length());
-
         // 기존 파일이 존재하는지 확인
         if(!amazonS3Client.doesObjectExist(bucket, fileName)) {
             throw new ApplicationException(ErrorCode.NOT_FOUND_EXCEPTION);
         }
-
-        // 기존 파일 삭제
-        amazonS3Client.deleteObject(bucket, fileName);
 
         // 새 파일 메타데이터 설정
         ObjectMetadata objectMetadata = new ObjectMetadata();
