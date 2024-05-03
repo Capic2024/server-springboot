@@ -202,8 +202,10 @@ public class VideoService {
         // Flask에서 반환된 파일을 다시 클라이언트에게 반환
         ByteArrayResource resource = new ByteArrayResource(response.getBody());
 
-        //여기에 나중에 update 구현
-        s3Client.update(folderName + "/" + videoReq.videoName(), (MultipartFile) resource);
+        ByteArrayMultipartFile multipartFile = new ByteArrayMultipartFile(resource.getByteArray(), videoReq.videoName());
+
+        // S3에 파일 업데이트
+        s3Client.update(folderName + "/" + videoReq.videoName(), multipartFile);
         return VideoRes.of(folderName, videoReq.videoName(), null);
     }
 
