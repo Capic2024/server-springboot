@@ -208,9 +208,10 @@ public class VideoService {
                 return "video/mp4"; // 동영상의 MIME 타입을 video/mp4로 설정
             }
         };
+        String mosaicVideoName = videoReq.videoName().split(".")[0]+"_mosaic.mp4";
         // S3에 파일 업데이트
-        s3Client.update(folderName + "/" + videoReq.videoName()+"_mosaic", multipartFile);
-        return VideoRes.of(folderName, videoReq.videoName()+"_mosaic", null);
+        s3Client.update(folderName + "/" + mosaicVideoName, multipartFile);
+        return VideoRes.of(folderName, mosaicVideoName, null);
     }
 
     //flask에 이미지, 동영상 보내기 test
